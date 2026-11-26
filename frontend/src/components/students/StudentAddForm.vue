@@ -94,6 +94,7 @@ async function onSubmit() {
         autocomplete="name"
         :error="visibleError('name')"
         required
+        :disabled="adding"
         @update:model-value="onInput('name', $event)"
         @blur="touched.name = true"
       />
@@ -105,6 +106,7 @@ async function onSubmit() {
         placeholder="e.g. 1001"
         :error="visibleError('id')"
         required
+        :disabled="adding"
         @update:model-value="onInput('id', $event)"
         @blur="touched.id = true"
       />
@@ -117,6 +119,7 @@ async function onSubmit() {
         placeholder="e.g. 555-1234"
         :error="visibleError('phone')"
         required
+        :disabled="adding"
         @update:model-value="onInput('phone', $event)"
         @blur="touched.phone = true"
       />
@@ -129,6 +132,7 @@ async function onSubmit() {
         placeholder="e.g. 77001"
         :error="visibleError('zip')"
         required
+        :disabled="adding"
         @update:model-value="onInput('zip', $event)"
         @blur="touched.zip = true"
       />

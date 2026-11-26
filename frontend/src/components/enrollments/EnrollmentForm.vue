@@ -78,9 +78,11 @@ async function onSubmit() {
     return;
   }
 
-  const result = await enrollmentStore.enroll(studentId.value, courseId.value);
+  const enrolledStudent = studentId.value;
+  const result = await enrollmentStore.enroll(enrolledStudent, courseId.value);
   if (result.ok) {
-    studentId.value = '';
+    // Clear the student only if the user hasn't already picked another one.
+    if (studentId.value === enrolledStudent) studentId.value = '';
     submitted.value = false;
   } else {
     Object.assign(serverErrors, result.fields);
@@ -109,6 +111,7 @@ async function onSubmit() {
         :options="studentOptions"
         :error="errors.studentId"
         required
+        :disabled="enrolling"
       />
       <FormSelect
         id="enroll-course"
@@ -118,6 +121,7 @@ async function onSubmit() {
         :options="courseOptions"
         :error="errors.courseId"
         required
+        :disabled="enrolling"
       />
       <div class="form-actions">
         <button type="submit" class="btn btn-primary" :disabled="enrolling || alreadyEnrolled">

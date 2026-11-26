@@ -89,6 +89,7 @@ async function onSubmit() {
         placeholder="e.g. CIS 3339"
         :error="visibleError('courseId')"
         required
+        :disabled="adding"
         @update:model-value="onInput('courseId', $event)"
         @blur="touched.courseId = true"
       />
@@ -99,6 +100,7 @@ async function onSubmit() {
         placeholder="e.g. Enterprise Applications Development"
         :error="visibleError('courseName')"
         required
+        :disabled="adding"
         @update:model-value="onInput('courseName', $event)"
         @blur="touched.courseName = true"
       />
