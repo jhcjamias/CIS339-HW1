@@ -74,6 +74,38 @@ main.container {
   border: 0;
 }
 
+/* Visible keyboard focus for every interactive element. */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.app-header a:focus-visible,
+.app-header button:focus-visible {
+  outline-color: #fff;
+}
+/* Headings receive programmatic focus after navigation; no ring needed. */
+h1:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.form-note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
 .skip-link {
   position: absolute;
   left: 8px;
@@ -331,6 +363,9 @@ main.container {
 .cell-actions .btn + .btn {
   margin-left: 6px;
 }
+.table tbody tr:hover td {
+  background: #fafbfc;
+}
 .table tbody tr.is-selected td {
   background: #fff5f6;
 }
@@ -587,7 +622,12 @@ main.container {
     font-weight: 600;
     color: var(--color-muted);
   }
-  .cell-actions {
+  .table td.cell-actions {
     justify-content: flex-end;
+    gap: 8px;
+    padding-top: 10px;
+  }
+  .table td.cell-actions .btn + .btn {
+    margin-left: 0;
   }
 }

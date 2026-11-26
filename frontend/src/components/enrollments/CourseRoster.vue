@@ -66,7 +66,7 @@ onMounted(() => {
       />
     </div>
 
-    <div aria-live="polite">
+    <div aria-live="polite" :aria-busy="rosterLoading">
       <LoadingSpinner v-if="rosterLoading" label="Loading enrolled students…" />
       <EmptyState v-else-if="rosterError" :message="rosterError" tone="warning" />
       <EmptyState v-else-if="!rosterCourseId" message="Select a course to list its enrolled students." />

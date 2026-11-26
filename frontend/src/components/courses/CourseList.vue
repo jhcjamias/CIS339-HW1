@@ -46,7 +46,7 @@ async function confirmDelete() {
       />
     </div>
 
-    <div aria-live="polite">
+    <div aria-live="polite" :aria-busy="loading">
       <LoadingSpinner v-if="loading && !loaded" label="Loading courses…" />
       <EmptyState v-else-if="loadError" :message="loadError" tone="warning">
         <button type="button" class="btn btn-secondary btn-sm retry" @click="store.fetchCourses()">

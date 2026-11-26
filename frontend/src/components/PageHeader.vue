@@ -7,7 +7,8 @@ defineProps({
 
 <template>
   <div class="page-header">
-    <h1>{{ title }}</h1>
+    <!-- tabindex="-1" lets App.vue move focus here after navigation. -->
+    <h1 tabindex="-1">{{ title }}</h1>
     <p v-if="subtitle" class="page-subtitle">{{ subtitle }}</p>
   </div>
 </template>

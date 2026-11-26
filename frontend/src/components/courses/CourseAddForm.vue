@@ -3,9 +3,11 @@ import { computed, reactive, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import BaseCard from '@/components/BaseCard.vue';
 import FormField from '@/components/FormField.vue';
+import { useFocusFirstError } from '@/composables/useFocusFirstError';
 import { useCourseStore } from '@/stores/courses';
 
 const store = useCourseStore();
+const { formEl, focusFirstError } = useFocusFirstError();
 const { adding } = storeToRefs(store);
 
 const FIELDS = ['courseId', 'courseName'];
@@ -57,7 +59,10 @@ function reset() {
 
 async function onSubmit() {
   submitted.value = true;
-  if (!isValid.value) return;
+  if (!isValid.value) {
+    focusFirstError();
+    return;
+  }
 
   const result = await store.addCourse({
     courseId: form.courseId.trim(),
@@ -68,13 +73,15 @@ async function onSubmit() {
     reset();
   } else {
     Object.assign(serverErrors, result.fields);
+    focusFirstError();
   }
 }
 </script>
 
 <template>
   <BaseCard title="Add a Course" heading-id="add-course-heading">
-    <form class="form" novalidate @submit.prevent="onSubmit">
+    <form ref="formEl" class="form" novalidate @submit.prevent="onSubmit">
+      <p class="form-note">Fields marked <span class="required" aria-hidden="true">*</span> are required.</p>
       <FormField
         id="course-id"
         :model-value="form.courseId"

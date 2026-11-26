@@ -8,6 +8,9 @@ import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { useCourseStore } from '@/stores/courses';
 import { useEnrollmentStore } from '@/stores/enrollments';
 import { useStudentStore } from '@/stores/students';
+import { useFocusFirstError } from '@/composables/useFocusFirstError';
+
+const { formEl, focusFirstError } = useFocusFirstError();
 
 const props = defineProps({
   loading: { type: Boolean, default: false },
@@ -70,7 +73,10 @@ watch(courses, (list) => {
 
 async function onSubmit() {
   submitted.value = true;
-  if (!studentId.value || !courseId.value || alreadyEnrolled.value) return;
+  if (!studentId.value || !courseId.value || alreadyEnrolled.value) {
+    focusFirstError();
+    return;
+  }
 
   const result = await enrollmentStore.enroll(studentId.value, courseId.value);
   if (result.ok) {
@@ -78,6 +84,7 @@ async function onSubmit() {
     submitted.value = false;
   } else {
     Object.assign(serverErrors, result.fields);
+    focusFirstError();
   }
 }
 </script>
@@ -93,7 +100,7 @@ async function onSubmit() {
       </span>
     </EmptyState>
 
-    <form v-else class="form" novalidate @submit.prevent="onSubmit">
+    <form v-else ref="formEl" class="form" novalidate @submit.prevent="onSubmit">
       <FormSelect
         id="enroll-student"
         v-model="studentId"

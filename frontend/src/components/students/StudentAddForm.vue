@@ -3,9 +3,11 @@ import { computed, reactive, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import BaseCard from '@/components/BaseCard.vue';
 import FormField from '@/components/FormField.vue';
+import { useFocusFirstError } from '@/composables/useFocusFirstError';
 import { useStudentStore } from '@/stores/students';
 
 const store = useStudentStore();
+const { formEl, focusFirstError } = useFocusFirstError();
 const { adding } = storeToRefs(store);
 
 const FIELDS = ['name', 'id', 'phone', 'zip'];
@@ -60,7 +62,10 @@ function reset() {
 
 async function onSubmit() {
   submitted.value = true;
-  if (!isValid.value) return;
+  if (!isValid.value) {
+    focusFirstError();
+    return;
+  }
 
   const result = await store.addStudent({
     name: form.name.trim(),
@@ -73,13 +78,15 @@ async function onSubmit() {
     reset();
   } else {
     Object.assign(serverErrors, result.fields);
+    focusFirstError();
   }
 }
 </script>
 
 <template>
   <BaseCard title="Add a Student" heading-id="add-heading">
-    <form class="form form-grid" novalidate @submit.prevent="onSubmit">
+    <form ref="formEl" class="form form-grid" novalidate @submit.prevent="onSubmit">
+      <p class="form-note span-all">Fields marked <span class="required" aria-hidden="true">*</span> are required.</p>
       <FormField
         id="add-name"
         :model-value="form.name"
