@@ -1,5 +1,117 @@
 # CIS 3339 Homework 1: Vue 3 and MongoDB Migration
 
+## Running the Completed Application
+
+A Student Management System built with **Vue 3** (Composition API, Vue Router, Pinia), an **Express** REST API, and **MongoDB** (via Mongoose).
+
+**Application URL:** <http://localhost:3000>
+
+### Required Software
+
+| Software | Version | Notes |
+|---|---|---|
+| Node.js | 18 or newer (tested with 24) | Includes npm |
+| MongoDB Community Edition | 7.0 or newer | Must be running locally on port 27017 |
+| A modern web browser | — | Chrome, Edge, Firefox, or Safari |
+
+### Environment Variables
+
+Configuration is read from the committed file [`backend/.env`](backend/.env). No changes are needed for a standard local setup.
+
+| Variable | Value | Purpose |
+|---|---|---|
+| `MONGODB_URI` | `mongodb://127.0.0.1:27017/cis3339_homework1` | Local MongoDB database (no credentials) |
+| `PORT` | `3000` | Port the Express server listens on |
+
+The database, collections, and indexes are created automatically on first startup. No setup, migration, or seed command is required.
+
+### 1. Start MongoDB Community Edition
+
+**macOS (Homebrew):**
+
+```bash
+brew tap mongodb/brew
+brew install mongodb-community
+brew services start mongodb-community
+```
+
+**Windows:** Install MongoDB Community Server from <https://www.mongodb.com/try/download/community> with "Install MongoD as a Service" selected. The service starts automatically; otherwise run `net start MongoDB` from an administrator terminal.
+
+**Linux (systemd):**
+
+```bash
+sudo systemctl start mongod
+```
+
+To confirm MongoDB is running, use `mongosh` (it should connect without errors).
+
+### 2. Install, Build, and Start
+
+Run these commands from the **project root** (the folder containing this README):
+
+```bash
+npm install     # installs root, backend, and frontend dependencies
+npm run build   # builds the Vue app into frontend/dist
+npm start       # starts Express, which serves the API and the built app
+```
+
+Then open **<http://localhost:3000>** in a browser.
+
+The server log should show:
+
+```
+Server is running on http://localhost:3000
+Connected to MongoDB database "cis3339_homework1".
+```
+
+If MongoDB is not running yet, the server keeps retrying every 5 seconds and the API responds with a "database unavailable" message until it connects.
+
+### Project Structure
+
+```
+package.json        Root scripts: install, build, start
+backend/
+  .env              MongoDB connection string and port
+  server.js         Express app: API routes + serves frontend/dist
+  config/db.js      MongoDB connection, retry, and automatic initialization
+  models/           Mongoose schemas: Student, Course, Enrollment
+  routes/           REST endpoints: /api/students, /api/courses, /api/enrollments
+  utils/            Error handling helpers
+frontend/
+  src/views/        Students, Courses, Enrollments pages
+  src/components/   Reusable UI components
+  src/stores/       Pinia stores (students, courses, enrollments, notifications)
+  src/router/       Vue Router configuration
+  src/api/          HTTP client for the backend
+```
+
+### REST API
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/students?q=` | List students, or search by name (partial) or student ID |
+| GET | `/api/students/:id` | Get one student |
+| POST | `/api/students` | Add a student `{ name, id, phone, zip }` |
+| DELETE | `/api/students/:id` | Delete a student and their enrollments |
+| GET | `/api/courses` | List courses |
+| GET | `/api/courses/:courseId` | Get one course |
+| POST | `/api/courses` | Add a course `{ courseId, courseName }` |
+| DELETE | `/api/courses/:courseId` | Delete a course and its enrollments |
+| GET | `/api/courses/:courseId/students` | List students enrolled in a course |
+| GET | `/api/enrollments?courseId=&studentId=` | List enrollments |
+| POST | `/api/enrollments` | Enroll a student `{ studentId, courseId }` |
+
+### Development Mode (optional)
+
+For hot reloading while editing the frontend, run the backend and the Vite dev server in two terminals:
+
+```bash
+npm run dev:backend    # http://localhost:3000 (API)
+npm run dev:frontend   # http://localhost:5173 (Vue app; proxies /api to port 3000)
+```
+
+---
+
 ## Assignment Overview
 
 In this assignment, you will migrate the provided Student Management System into a modern full-stack enterprise application.
