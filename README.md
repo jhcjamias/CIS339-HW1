@@ -1,273 +1,16 @@
-# CIS 3339 Homework 1: Vue 3 and MongoDB Migration
+# Student Management System
 
-## Running the Completed Application
+CIS 3339 Homework 1: a full-stack app for managing students, courses, and enrollments, built with **Vue 3**, **Express**, and **MongoDB**.
 
-A Student Management System built with **Vue 3** (Composition API, Vue Router, Pinia), an **Express** REST API, and **MongoDB** (via Mongoose).
+**Application URL: <http://localhost:3000>**
 
-**Application URL:** <http://localhost:3000>
-
-### Required Software
-
-| Software | Version | Notes |
-|---|---|---|
-| Node.js | 18 or newer (tested with 24) | Includes npm |
-| MongoDB Community Edition | 7.0 or newer | Must be running locally on port 27017 |
-| A modern web browser | — | Chrome, Edge, Firefox, or Safari |
-
-### Environment Variables
-
-Configuration is read from the committed file [`backend/.env`](backend/.env). No changes are needed for a standard local setup.
-
-| Variable | Value | Purpose |
-|---|---|---|
-| `MONGODB_URI` | `mongodb://127.0.0.1:27017/cis3339_homework1` | Local MongoDB database (no credentials) |
-| `PORT` | `3000` | Port the Express server listens on |
-
-The database, collections, and indexes are created automatically on first startup. No setup, migration, or seed command is required.
-
-### 1. Start MongoDB Community Edition
-
-**macOS (Homebrew):**
-
-```bash
-brew tap mongodb/brew
-brew install mongodb-community
-brew services start mongodb-community
-```
-
-**Windows:** Install MongoDB Community Server from <https://www.mongodb.com/try/download/community> with "Install MongoD as a Service" selected. The service starts automatically; otherwise run `net start MongoDB` from an administrator terminal.
-
-**Linux (systemd):**
-
-```bash
-sudo systemctl start mongod
-```
-
-To confirm MongoDB is running, use `mongosh` (it should connect without errors).
-
-### 2. Install, Build, and Start
-
-Run these commands from the **project root** (the folder containing this README):
-
-```bash
-npm install     # installs root, backend, and frontend dependencies
-npm run build   # builds the Vue app into frontend/dist
-npm start       # starts Express, which serves the API and the built app
-```
-
-Then open **<http://localhost:3000>** in a browser.
-
-The server log should show:
-
-```
-Server is running on http://localhost:3000
-Connected to MongoDB database "cis3339_homework1".
-```
-
-If MongoDB is not running yet, the server keeps retrying every 5 seconds and the API responds with a "database unavailable" message until it connects.
-
-### Project Structure
-
-```
-package.json        Root scripts: install, build, start
-backend/
-  .env              MongoDB connection string and port
-  server.js         Express app: API routes + serves frontend/dist
-  config/db.js      MongoDB connection, retry, and automatic initialization
-  models/           Mongoose schemas: Student, Course, Enrollment
-  routes/           REST endpoints: /api/students, /api/courses, /api/enrollments
-  utils/            Error handling helpers
-frontend/
-  src/views/        Students, Courses, Enrollments pages
-  src/components/   Reusable UI components
-  src/stores/       Pinia stores (students, courses, enrollments, notifications)
-  src/router/       Vue Router configuration
-  src/api/          HTTP client for the backend
-```
-
-### REST API
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/students?q=` | List students, or search by name (partial) or student ID |
-| GET | `/api/students/:id` | Get one student |
-| POST | `/api/students` | Add a student `{ name, id, phone, zip }` |
-| DELETE | `/api/students/:id` | Delete a student and their enrollments |
-| GET | `/api/courses` | List courses |
-| GET | `/api/courses/:courseId` | Get one course |
-| POST | `/api/courses` | Add a course `{ courseId, courseName }` |
-| DELETE | `/api/courses/:courseId` | Delete a course and its enrollments |
-| GET | `/api/courses/:courseId/students` | List students enrolled in a course |
-| GET | `/api/enrollments?courseId=&studentId=` | List enrollments |
-| POST | `/api/enrollments` | Enroll a student `{ studentId, courseId }` |
-
-### Development Mode (optional)
-
-For hot reloading while editing the frontend, run the backend and the Vite dev server in two terminals:
-
-```bash
-npm run dev:backend    # http://localhost:3000 (API)
-npm run dev:frontend   # http://localhost:5173 (Vue app; proxies /api to port 3000)
-```
+The original assignment instructions are in [ASSIGNMENT.md](ASSIGNMENT.md).
 
 ---
 
-## Assignment Overview
+## Quick Start
 
-In this assignment, you will migrate the provided Student Management System into a modern full-stack enterprise application.
-
-The starter project contains a Node.js/Express backend and a frontend written with HTML and JavaScript. Your job is to:
-
-- migrate **all frontend functionality** to **Vue 3 using the Composition API**;
-- replace JSON-file storage with **MongoDB**;
-- complete the student, course, and enrollment features; and
-- create a production build that can be run and tested on `localhost`.
-
-Do not remove working features during the migration.
-
-## Learning Objectives
-
-After completing this assignment, you should be able to:
-
-- build a component-based frontend with Vue 3;
-- manage reactive state and application logic with the Composition API;
-- create and consume REST API endpoints;
-- model related data in MongoDB;
-- maintain referential integrity among students, courses, and enrollments; and
-- build and locally deploy a full-stack application.
-
-## Prerequisites
-
-- Node.js and npm
-- MongoDB Community Edition running locally
-- A modern web browser
-- Basic knowledge of JavaScript, Vue, Node.js, Express, REST APIs, and MongoDB
-
-## AI Tools
-
-You can use AI development tools, such as Visual Studio Code with GitHub Copilot or other AI tools. You are responsible for understanding, testing, and being able to explain all submitted code.
-
----
-
-## Part 1: Run and Review the Starter Code
-
-Before making changes, review the existing files in `backend/` and `frontend/` and run the starter application.
-
-### Run the Backend
-
-```bash
-cd backend
-npm install
-node server.js
-```
-
-The starter server runs at `http://localhost:3000`.
-
-### Review the Frontend
-
-Open the files in `frontend/` and identify how the current pages call the backend. The starter frontend uses plain HTML and JavaScript; it is provided only as the starting point for your Vue migration.
-
-Verify the existing student search and add functionality before you begin. This gives you a known baseline for testing the migrated application.
-
----
-
-## Part 2: Required Implementation
-
-### Requirement 1: Migrate the Frontend to Vue 3
-
-Replace the plain HTML/JavaScript frontend with a Vue 3 application.
-
-Your Vue application must:
-
-- use a standard npm-based Vue project structure;
-- use **Vue 3 Composition API** for all frontend functionality;
-- use **Vue Router** to provide client-side navigation between the application's main views;
-- use **Pinia** for shared application state where state must be accessed or updated by multiple components or views;
-- organize the interface into appropriate reusable components;
-- use reactive Vue state, computed values, lifecycle hooks, and event handlers where appropriate;
-- call the Express backend through HTTP requests;
-- display useful success, validation, loading, and error feedback; and
-- contain no application logic in legacy standalone DOM-manipulation scripts.
-
-Do not use the Vue Options API (`data`, `methods`, `computed`, and similar component options) to implement assignment functionality.
-
-### Requirement 2: Student Management
-
-The Vue application must allow a user to:
-
-- add a student with a name, student ID, phone number, and ZIP code;
-- search for a student;
-- display student information; and
-- delete a student.
-
-Validate required fields and prevent duplicate student IDs.
-
-### Requirement 3: Course Management
-
-The Vue application must allow a user to:
-
-- add a course with a course ID and course name;
-- list all courses; and
-- delete a course.
-
-Validate required fields and prevent duplicate course IDs.
-
-The example images in `images/` may be used as a reference for the expected features. You may redesign the interface.
-
-### Requirement 4: Enrollment Management
-
-The Vue application must allow a user to:
-
-- select an existing student and an existing course;
-- enroll the selected student in the selected course;
-- prevent duplicate enrollments; and
-- select a course and list all students enrolled in it.
-
-Student and course selections must be populated from data returned by the backend rather than hard-coded values.
-
-### Requirement 5: Store Data in MongoDB
-
-Replace all JSON-file persistence with MongoDB. The completed application must not use `students.json` or other local JSON files as its database.
-
-Your application will be graded using **MongoDB Community Edition running locally**. Do not require MongoDB Atlas, a cloud database, authentication credentials, or any external database service.
-
-Your backend must:
-
-- connect to MongoDB using an appropriate Node.js library, such as Mongoose or the official MongoDB driver;
-- store students, courses, and enrollments in MongoDB;
-- define clear schemas or validation rules for the stored data;
-- read the MongoDB connection string from the real, submitted `.env` file;
-- work with a local connection string such as `MONGODB_URI=mongodb://127.0.0.1:27017/cis3339_homework1`;
-- connect successfully when the specified local database is empty or does not yet exist;
-- automatically create all required database structures, collections, schemas, and indexes during normal application startup or first use;
-- require no manual database configuration, creation, migration, seed, import, or rebuild command;
-- return appropriate HTTP status codes and JSON responses; and
-- handle connection, validation, not-found, and duplicate-record errors gracefully.
-
-The repository **must include the real `.env` file** used to run the submitted application. 
-
-The committed `.env` must contain a working local MongoDB configuration and must not contain passwords, cloud credentials, or other secrets. The grader must be able to clone the repository, install dependencies, start MongoDB Community Edition, and run the application against an empty database without manually creating, configuring, migrating, seeding, importing, or rebuilding the database.
-
-### Requirement 6: Data Integrity
-
-Maintain valid relationships among students, courses, and enrollments.
-
-- An enrollment may reference only an existing student and an existing course.
-- Deleting a student must also remove that student's enrollments.
-- Deleting a course must also remove that course's enrollments.
-- Duplicate students, courses, and enrollments must be rejected.
-
-### Requirement 7: Production Build and Local Deployment
-
-Configure the project so the frontend can be compiled as a production build with:
-
-```bash
-npm run build
-```
-
-The build command must complete without errors and generate the Vue production assets. Configure the Express backend to serve those built assets so the complete application can be opened from a `localhost` URL.
-
-Document the exact commands needed to install, build, and start your completed application. A typical production test workflow is:
+With MongoDB Community Edition already running locally, run these commands from the project root (the folder containing this README):
 
 ```bash
 npm install
@@ -275,163 +18,228 @@ npm run build
 npm start
 ```
 
-After startup, the application must be accessible in a browser through the documented `localhost` address. Opening the old frontend HTML files directly is not an acceptable deployment method.
+Then open **<http://localhost:3000>**.
 
-You may use either a root-level npm configuration that coordinates the frontend and backend or clearly documented npm commands in the appropriate project directory. In either case, `npm run build` must build the Vue frontend, and the backend must serve the resulting production files.
-
-### Requirement 8: User Interface Design
-
-A well-designed, user-friendly interface is required. The application must include:
-
-- a consistent layout and navigation system;
-- responsive pages that remain usable at common desktop and mobile widths;
-- accessible labels and controls;
-- readable forms, lists, and validation messages;
-- clear loading, success, error, and empty-data states; and
-- consistent styling across the student, course, and enrollment views.
-
-Vue Router navigation must work when users move between views, and refreshing a routed page in the production application must not return a 404 error.
+Each step is explained below.
 
 ---
 
-## Part 3: Testing Your Implementation
+## Required Software
 
-### Test Student Management
+| Software | Required version | Tested with |
+|---|---|---|
+| [Node.js](https://nodejs.org/) (includes npm) | 18 or newer | Node 24.21.0, npm 12.2.0 |
+| [MongoDB Community Edition](https://www.mongodb.com/try/download/community) | 7.0 or newer | 9.0.8 and 7.0 |
+| A modern web browser | Current Chrome, Edge, Firefox, or Safari | Chromium |
 
-1. Add a student with the following information: name `John`, student ID `1001`, phone `555-1234`, and ZIP code `77001`.
-2. Search for `John` and confirm that the correct record appears.
-3. Add another student: name `Jane`, student ID `1002`, phone `555-5678`, and ZIP code `77002`.
-4. Attempt to add a duplicate student ID and confirm that the application rejects it.
-5. Delete John and confirm that he no longer appears.
-
-### Test Course Management
-
-1. Add course `CIS 3339` with the name `Enterprise Applications Development`.
-2. Add course `CIS 3368` with the name `Advanced Object-Oriented Programming`.
-3. List all courses and confirm that both appear.
-4. Attempt to add a duplicate course ID and confirm that the application rejects it.
-5. Delete one course and confirm that its enrollments are also removed.
-
-### Test Enrollments
-
-1. Create at least two students and two courses.
-2. Select a student and a course and create an enrollment.
-3. Attempt to create the same enrollment again and confirm that it is rejected.
-4. Enroll another student in the same course.
-5. Select the course and confirm that both enrolled students appear.
-6. Delete a student and confirm that the student's enrollments are removed.
-
-### Test MongoDB Persistence
-
-1. Start with MongoDB Community Edition running locally and an empty or nonexistent assignment database.
-2. Confirm that the real `.env` file is present, tracked by Git.
-3. Install and start the application without running a database setup, creation, migration, seed, import, or rebuild command.
-4. Confirm that the application automatically initializes what it needs and can add students, courses, and enrollments.
-5. Stop and restart the application without reseeding or rebuilding the database.
-6. Refresh the application and confirm that the saved data remains available.
-7. Inspect MongoDB and confirm that the records are stored there rather than in JSON files.
-
-### Test the Production Build
-
-1. Run `npm run build` using your documented procedure.
-2. Confirm that the command finishes without errors.
-3. Start the production server.
-4. Open the documented `localhost` URL in a browser.
-5. Test every required feature using the production build.
-6. Confirm that the browser console and server terminal contain no unexpected errors.
+`mongosh` (the MongoDB Shell) is optional. It is useful for confirming that MongoDB is running and for inspecting the stored data.
 
 ---
 
-## Part 4: Deliverables Checklist
+## Environment Variables
 
-Your repository must include:
+The application reads its configuration from **[`backend/.env`](backend/.env)**. The file is committed to the repository, and a standard local setup needs no changes:
 
-- [ ] A Vue 3 frontend implemented entirely with the Composition API
-- [ ] Vue Router navigation between the application's main views
-- [ ] Pinia stores for shared state used across components or views
-- [ ] Reusable Vue components for the required functionality
-- [ ] A responsive, accessible, and consistently styled user interface
-- [ ] Student add, search, display, and delete features
-- [ ] Course add, list, and delete features
-- [ ] Enrollment add and course-roster features
-- [ ] An Express REST API supporting all required frontend operations
-- [ ] MongoDB models/collections for students, courses, and enrollments
-- [ ] Automatic operation with an empty or nonexistent local MongoDB database, with no manual database preparation
-- [ ] Validation, duplicate prevention, and cascading enrollment deletion
-- [ ] Environment-based MongoDB configuration
-- [ ] The real `.env` file, configured for local MongoDB, committed to Git
-- [ ] A working `npm run build` command
-- [ ] A production server that serves the built application on `localhost`
-- [ ] Updated setup, build, and run instructions
-- [ ] Graceful error handling and no unexpected console errors
+```dotenv
+MONGODB_URI=mongodb://127.0.0.1:27017/cis3339_homework1
+PORT=3000
+```
 
-Do not submit:
+| Variable | Required | Value | Purpose |
+|---|---|---|---|
+| `MONGODB_URI` | Yes | `mongodb://127.0.0.1:27017/cis3339_homework1` | Connection string for the local MongoDB server and database. No username or password is used. |
+| `PORT` | No (defaults to `3000`) | `3000` | Port that the Express server listens on. |
 
-- `node_modules/`;
+The `cis3339_homework1` database does not need to exist in advance. On startup, the server automatically creates the database, its `students`, `courses`, and `enrollments` collections, and their indexes. **No setup, migration, seed, or import command is needed.**
 
 ---
 
-## Part 5: Submission Instructions
+## Step 1: Start MongoDB Community Edition
 
-1. Complete and test all required functionality.
-2. Verify that the real `.env` file is committed to Git.
-3. Verify the application with a clean installation of its dependencies and the committed `.env` file.
-4. Verify that the application starts against an empty or nonexistent local MongoDB Community Edition database without any manual configuration, creation, migration, seeding, import, or rebuild step.
-5. Verify MongoDB persistence after restarting the server.
-6. Verify the production workflow with `npm run build`.
-7. Remove debug code and confirm there are no unexpected errors or warnings.
-8. Commit and push the completed project to the repository.
+MongoDB must be running on `127.0.0.1:27017` (the default) before you use the application.
 
-Your own README must clearly state:
+### macOS (Homebrew)
 
-- required software;
-- required environment variables;
-- dependency installation commands;
-- local MongoDB Community Edition startup instructions;
-- the production build command;
-- the server start command; and
-- the exact `localhost` URL used to open the application.
+```bash
+brew tap mongodb/brew
+brew install mongodb-community
+brew services start mongodb-community
+```
+
+To stop it later: `brew services stop mongodb-community`
+
+### Windows
+
+1. Download and run the **MongoDB Community Server** installer (`.msi`) from <https://www.mongodb.com/try/download/community>.
+2. During installation, leave **"Install MongoD as a Service"** selected. MongoDB then starts automatically.
+3. If the service is stopped, start it from an **Administrator** terminal:
+
+   ```powershell
+   net start MongoDB
+   ```
+
+### Linux (systemd)
+
+After installing MongoDB Community Edition using the [official instructions for your distribution](https://www.mongodb.com/docs/manual/administration/install-on-linux/):
+
+```bash
+sudo systemctl start mongod
+```
+
+### Confirm that MongoDB is running
+
+```bash
+mongosh --eval "db.runCommand({ ping: 1 })"
+```
+
+The output should include `ok: 1`.
+
+---
+
+## Step 2: Install Dependencies
+
+From the **project root**:
+
+```bash
+npm install
+```
+
+This single command installs the dependencies for the root project, the backend (`backend/`), and the frontend (`frontend/`).
+
+---
+
+## Step 3: Build the Production Frontend
+
+```bash
+npm run build
+```
+
+This compiles the Vue application into `frontend/dist/`. The command should finish with a line like `✓ built in 400ms`.
+
+---
+
+## Step 4: Start the Server
+
+```bash
+npm start
+```
+
+Express serves both the REST API and the built Vue application. The terminal should show:
+
+```
+Server is running on http://localhost:3000
+Connected to MongoDB database "cis3339_homework1".
+```
+
+To stop the server, press `Ctrl+C`.
+
+---
+
+## Step 5: Open the Application
+
+Open **<http://localhost:3000>** in a browser.
+
+| Page | URL | What you can do |
+|---|---|---|
+| Students | <http://localhost:3000/students> | Add, search (by name or ID), view, and delete students |
+| Courses | <http://localhost:3000/courses> | Add, list, filter, and delete courses |
+| Enrollments | <http://localhost:3000/enrollments> | Enroll a student in a course and list the students in a course |
+
+All pages can be refreshed or opened directly by URL.
+
+---
+
+## Features
+
+- **Students:** add a student with name, student ID, phone, and ZIP code; search by partial name or exact ID; view details; delete.
+- **Courses:** add a course with course ID and name; list and filter all courses; delete.
+- **Enrollments:** choose an existing student and course from lists loaded from the database; enroll; view each course's roster.
+- **Validation:** every form checks its fields as you type, and the server checks them again.
+- **Duplicate prevention:** duplicate student IDs, course IDs (case-insensitive, e.g. `cis 3339` = `CIS 3339`), and enrollments are rejected. Unique indexes enforce this in the database too.
+- **Data integrity:** an enrollment can reference only an existing student and course. Deleting a student or course also deletes its enrollments.
+- **Feedback:** loading indicators, success and error notifications, inline validation messages, and empty-data messages.
+- **Responsive and accessible:** works at phone, tablet, and desktop widths; has labeled form controls, keyboard navigation, and a skip link.
+
+---
+
+## Project Structure
+
+```
+package.json              Root scripts: npm install / npm run build / npm start
+backend/
+  .env                    MongoDB connection string and port
+  server.js               Express app: REST API + serves frontend/dist
+  config/db.js            MongoDB connection, automatic retry, and database initialization
+  models/                 Mongoose schemas: Student, Course, Enrollment
+  routes/                 REST endpoints for students, courses, and enrollments
+  utils/                  Error handling helpers
+frontend/
+  index.html              Vite entry page
+  vite.config.js          Build settings and development proxy
+  src/
+    main.js               Creates the Vue app with Pinia and Vue Router
+    App.vue               Page layout (header, main content, notifications)
+    router/               Vue Router routes
+    stores/               Pinia stores: students, courses, enrollments, notifications
+    views/                Students, Courses, Enrollments, and Not Found pages
+    components/           Reusable UI components
+    composables/          Shared Composition API helpers
+    api/                  HTTP client for the backend
+    assets/main.css       Application styles
+```
+
+### Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Vue 3 (Composition API with `<script setup>`), Vue Router 4, Pinia 3, Vite 6 |
+| Backend | Node.js, Express 5 |
+| Database | MongoDB Community Edition, Mongoose 8 |
+| Configuration | dotenv |
+
+---
+
+## REST API
+
+All endpoints are under `/api` and return JSON.
+
+| Method | Endpoint | Description | Success | Errors |
+|---|---|---|---|---|
+| GET | `/api/students?q=` | List all students, or search by partial name or exact ID | 200 | |
+| GET | `/api/students/:id` | Get one student | 200 | 404 |
+| POST | `/api/students` | Add a student: `{ name, id, phone, zip }` | 201 | 400 invalid, 409 duplicate ID |
+| DELETE | `/api/students/:id` | Delete a student and their enrollments | 200 | 404 |
+| GET | `/api/courses` | List all courses | 200 | |
+| GET | `/api/courses/:courseId` | Get one course | 200 | 404 |
+| POST | `/api/courses` | Add a course: `{ courseId, courseName }` | 201 | 400 invalid, 409 duplicate ID |
+| DELETE | `/api/courses/:courseId` | Delete a course and its enrollments | 200 | 404 |
+| GET | `/api/courses/:courseId/students` | List students enrolled in a course | 200 | 404 |
+| GET | `/api/enrollments?courseId=&studentId=` | List enrollments, optionally filtered | 200 | |
+| POST | `/api/enrollments` | Enroll a student: `{ studentId, courseId }` | 201 | 400 missing, 404 not found, 409 already enrolled |
+
+If MongoDB is unavailable, API requests return **503** with a "database unavailable" message.
+
+---
+
+## Development Mode (Optional)
+
+To get automatic reloading while editing the frontend, run the backend and the Vite development server in two terminals:
+
+```bash
+npm run dev:backend     # API on http://localhost:3000
+npm run dev:frontend    # Vue app on http://localhost:5173 (forwards /api to port 3000)
+```
+
+The production workflow above (`npm run build` then `npm start`) is the one to use for grading.
 
 ---
 
 ## Troubleshooting
 
-### The Backend Cannot Connect to MongoDB
-
-- Confirm that MongoDB Community Edition is installed and running locally.
-- Confirm that `MONGODB_URI` is defined correctly.
-- Confirm that the submitted `.env` file is present and points to the local MongoDB service.
-
-### The Frontend Cannot Reach the API
-
-- Confirm that the backend is running on the expected port.
-- Check the frontend API base URL or development proxy configuration.
-- Check the browser console and the server terminal for error messages.
-
-### The Production Page Is Blank or Returns 404
-
-- Run `npm run build` again and confirm that the production assets are generated.
-- Confirm that Express is serving the correct build-output directory.
-
-### A Dependency Is Missing
-
-Run `npm install` in each directory that contains a `package.json`, following your project's documented setup procedure.
-
----
-
-## Evaluation Focus
-
-Your work will be evaluated for:
-
-- correct use of Vue 3 Composition API;
-- correct use of Vue Router and Pinia;
-- complete and correct functionality;
-- MongoDB persistence and data modeling;
-- automatic startup with an empty local MongoDB database;
-- API design, validation, and error handling;
-- data integrity and cascading deletes;
-- successful production build and local deployment;
-- code organization and maintainability;
-- required interface quality and accessibility; and
-- clear documentation and user experience.
-
+| Problem | Solution |
+|---|---|
+| The server prints `MongoDB connection failed ... Retrying in 5s` | MongoDB is not running. Start it (Step 1). The server keeps retrying and connects automatically once MongoDB is available. |
+| The browser shows "The frontend has not been built yet" | Run `npm run build`, then restart the server with `npm start`. |
+| `npm start` fails with `EADDRINUSE` | Another program is using port 3000. Stop it, or change `PORT` in `backend/.env`. |
+| A dependency is missing | Run `npm install` again from the project root. |
+| Starting over with an empty database | Run `mongosh cis3339_homework1 --eval "db.dropDatabase()"`. The app recreates everything on its next start. |
