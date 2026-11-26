@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router';
 const links = [
   { to: '/students', label: 'Students' },
   { to: '/courses', label: 'Courses' },
+  { to: '/enrollments', label: 'Enrollments' },
 ];
 
 const menuOpen = ref(false);

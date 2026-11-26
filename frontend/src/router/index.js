@@ -16,6 +16,12 @@ const routes = [
     meta: { title: 'Courses' },
   },
   {
+    path: '/enrollments',
+    name: 'enrollments',
+    component: () => import('@/views/EnrollmentsView.vue'),
+    meta: { title: 'Enrollments' },
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/views/NotFoundView.vue'),

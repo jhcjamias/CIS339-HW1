@@ -211,12 +211,28 @@ main.container {
   color: var(--color-text);
   min-height: 42px;
 }
-.field input:focus {
+.field select {
+  font: inherit;
+  padding: 9px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--color-text);
+  min-height: 42px;
+  width: 100%;
+}
+.field input:focus,
+.field select:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: var(--focus);
 }
-.field.has-error input {
+.field select:disabled {
+  background: #f0f2f6;
+  cursor: not-allowed;
+}
+.field.has-error input,
+.field.has-error select {
   border-color: var(--color-error);
 }
 .field-hint {
@@ -359,6 +375,22 @@ main.container {
 }
 .nowrap {
   white-space: nowrap;
+}
+.roster-picker {
+  margin-bottom: 16px;
+}
+.page-alert {
+  margin-bottom: 20px;
+}
+.empty-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+.empty-links a {
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 /* Inline list filter */

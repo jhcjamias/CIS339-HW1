@@ -16,6 +16,23 @@ export const useStudentStore = defineStore('students', () => {
   const deletingId = ref(null);
   const selectedId = ref(null);
 
+  // Full, unfiltered student list used for selection menus (e.g. enrollment).
+  const directory = ref([]);
+  const directoryLoading = ref(false);
+  const directoryError = ref('');
+
+  async function fetchDirectory() {
+    directoryLoading.value = true;
+    directoryError.value = '';
+    try {
+      directory.value = await studentApi.list();
+    } catch (err) {
+      directoryError.value = err.message;
+    } finally {
+      directoryLoading.value = false;
+    }
+  }
+
   const isSearching = computed(() => query.value !== '');
   const count = computed(() => students.value.length);
   const selectedStudent = computed(
@@ -107,6 +124,10 @@ export const useStudentStore = defineStore('students', () => {
     isSearching,
     count,
     selectedStudent,
+    directory,
+    directoryLoading,
+    directoryError,
+    fetchDirectory,
     fetchStudents,
     search,
     showAll,
