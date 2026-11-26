@@ -69,7 +69,7 @@ async function confirmDelete() {
     title="Delete course"
     :message="
       pendingDelete
-        ? `Delete ${pendingDelete.courseId} – ${pendingDelete.courseName}? This cannot be undone.`
+        ? `Delete ${pendingDelete.courseId} – ${pendingDelete.courseName}? Every student enrollment in this course will also be removed. This cannot be undone.`
         : ''
     "
     confirm-label="Delete"

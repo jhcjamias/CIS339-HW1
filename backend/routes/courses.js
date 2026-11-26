@@ -2,6 +2,7 @@ const express = require('express');
 const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
 const { HttpError, validateDocument } = require('../utils/errors');
+const { enrollmentSummary } = require('../utils/text');
 
 const router = express.Router();
 
@@ -50,11 +51,19 @@ router.post('/', async (req, res) => {
     res.status(201).json({ message: `Course ${course.courseId} added successfully.`, course });
 });
 
-// DELETE /api/courses/:courseId -> delete a course
+// DELETE /api/courses/:courseId -> delete a course and all of its enrollments.
+// The course is removed first so no new enrollment can reference it while
+// its existing enrollments are being cleaned up.
 router.delete('/:courseId', async (req, res) => {
     const course = await Course.findOneAndDelete({ courseId: Course.normalizeCourseId(req.params.courseId) });
     if (!course) throw new HttpError(404, `Course ${req.params.courseId} not found.`);
-    res.json({ message: `Course ${course.courseId} deleted successfully.`, course });
+
+    const { deletedCount } = await Enrollment.deleteMany({ course: course._id });
+    res.json({
+        message: `Course ${course.courseId} deleted successfully. ${enrollmentSummary(deletedCount)}`,
+        course,
+        enrollmentsRemoved: deletedCount,
+    });
 });
 
 module.exports = router;

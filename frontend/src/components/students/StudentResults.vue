@@ -90,7 +90,11 @@ async function confirmDelete() {
   <ConfirmDialog
     :open="pendingDelete !== null"
     title="Delete student"
-    :message="pendingDelete ? `Delete student ${pendingDelete.name} (ID ${pendingDelete.id})? This cannot be undone.` : ''"
+    :message="
+      pendingDelete
+        ? `Delete student ${pendingDelete.name} (ID ${pendingDelete.id})? All of their course enrollments will also be removed. This cannot be undone.`
+        : ''
+    "
     confirm-label="Delete"
     :busy="deletingId !== null"
     @confirm="confirmDelete"

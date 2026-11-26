@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
 const Student = require('../models/Student');
@@ -68,12 +69,28 @@ router.post('/', async (req, res) => {
         throw duplicateError();
     }
 
+    const goneError = () =>
+        new HttpError(404, 'The selected student or course was deleted. Refresh and try again.');
+
     let enrollment;
     try {
+        // Schema validators re-check that both references still exist.
         enrollment = await Enrollment.create({ student: student._id, course: course._id });
     } catch (error) {
         if (error.code === 11000) throw duplicateError(); // concurrent duplicate request
+        if (error instanceof mongoose.Error.ValidationError) throw goneError();
         throw error;
+    }
+
+    // If the student or course was deleted while this request was in flight,
+    // the cascade may already have run; undo so no orphan is left behind.
+    const [studentStillExists, courseStillExists] = await Promise.all([
+        Student.exists({ _id: student._id }),
+        Course.exists({ _id: course._id }),
+    ]);
+    if (!studentStillExists || !courseStillExists) {
+        await Enrollment.deleteOne({ _id: enrollment._id });
+        throw goneError();
     }
 
     res.status(201).json({

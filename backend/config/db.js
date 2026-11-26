@@ -26,6 +26,11 @@ async function initializeDatabase() {
         }
         await model.syncIndexes();
     }
+
+    const removed = await Enrollment.removeOrphans();
+    if (removed > 0) {
+        console.log(`Removed ${removed} enrollment(s) referencing deleted students or courses.`);
+    }
 }
 
 // Connects to MongoDB, retrying until it is available, so the server can
