@@ -7,15 +7,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const DATA_FILE = path.join(__dirname, 'students.json');
+const STUDENTS_FILE = path.join(__dirname, 'students.json');
+const COURSES_FILE = path.join(__dirname, 'courses.json');
 
 // ---------------------------------------------------------------------------
-// Storage helpers (JSON file; replaced by MongoDB in a later requirement)
+// Storage helpers (JSON files; replaced by MongoDB in a later requirement)
 // ---------------------------------------------------------------------------
 
-async function loadStudents() {
+async function loadCollection(file) {
     try {
-        const data = await fs.promises.readFile(DATA_FILE, 'utf8');
+        const data = await fs.promises.readFile(file, 'utf8');
         return JSON.parse(data);
     } catch (error) {
         if (error.code === 'ENOENT') {
@@ -25,9 +26,14 @@ async function loadStudents() {
     }
 }
 
-async function saveStudents(students) {
-    await fs.promises.writeFile(DATA_FILE, JSON.stringify(students, null, 2), 'utf8');
+async function saveCollection(file, items) {
+    await fs.promises.writeFile(file, JSON.stringify(items, null, 2), 'utf8');
 }
+
+const loadStudents = () => loadCollection(STUDENTS_FILE);
+const saveStudents = (students) => saveCollection(STUDENTS_FILE, students);
+const loadCourses = () => loadCollection(COURSES_FILE);
+const saveCourses = (courses) => saveCollection(COURSES_FILE, courses);
 
 // ---------------------------------------------------------------------------
 // Validation
@@ -130,6 +136,105 @@ app.delete('/api/students/:id', async (req, res, next) => {
         const [deleted] = students.splice(index, 1);
         await saveStudents(students);
         res.json({ message: `Student ${deleted.name} deleted successfully.`, student: deleted });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// ---------------------------------------------------------------------------
+// Course REST API
+// ---------------------------------------------------------------------------
+
+// Course IDs are stored as entered (trimmed, single spaces), but compared
+// case-insensitively so "cis 3339" and "CIS 3339" count as the same course.
+const normalizeCourseId = (value) => String(value ?? '').trim().replace(/\s+/g, ' ');
+const courseKey = (value) => normalizeCourseId(value).toUpperCase();
+
+function validateCourse(body = {}) {
+    const course = {
+        courseId: normalizeCourseId(body.courseId).toUpperCase(),
+        courseName: String(body.courseName ?? '').trim().replace(/\s+/g, ' '),
+    };
+    const errors = {};
+
+    if (!course.courseId) {
+        errors.courseId = 'Course ID is required.';
+    } else if (!/^[A-Z0-9][A-Z0-9 -]{1,19}$/.test(course.courseId)) {
+        errors.courseId = 'Course ID may contain letters, numbers, spaces, and hyphens (e.g. CIS 3339).';
+    }
+
+    if (!course.courseName) {
+        errors.courseName = 'Course name is required.';
+    } else if (course.courseName.length > 100) {
+        errors.courseName = 'Course name must be 100 characters or fewer.';
+    }
+
+    return { course, errors };
+}
+
+// GET /api/courses -> list all courses, sorted by course ID
+app.get('/api/courses', async (req, res, next) => {
+    try {
+        const courses = await loadCourses();
+        courses.sort((a, b) => a.courseId.localeCompare(b.courseId, undefined, { numeric: true }));
+        res.json(courses);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// GET /api/courses/:courseId -> one course
+app.get('/api/courses/:courseId', async (req, res, next) => {
+    try {
+        const key = courseKey(req.params.courseId);
+        const courses = await loadCourses();
+        const course = courses.find((c) => courseKey(c.courseId) === key);
+        if (!course) {
+            return res.status(404).json({ error: `Course ${req.params.courseId} not found.` });
+        }
+        res.json(course);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// POST /api/courses -> create a course
+app.post('/api/courses', async (req, res, next) => {
+    try {
+        const { course, errors } = validateCourse(req.body);
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({ error: 'Please correct the highlighted fields.', fields: errors });
+        }
+
+        const courses = await loadCourses();
+        if (courses.some((c) => courseKey(c.courseId) === courseKey(course.courseId))) {
+            return res.status(409).json({
+                error: `A course with ID ${course.courseId} already exists.`,
+                fields: { courseId: 'This course ID is already in use.' },
+            });
+        }
+
+        courses.push(course);
+        await saveCourses(courses);
+        res.status(201).json({ message: `Course ${course.courseId} added successfully.`, course });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// DELETE /api/courses/:courseId -> delete a course
+app.delete('/api/courses/:courseId', async (req, res, next) => {
+    try {
+        const key = courseKey(req.params.courseId);
+        const courses = await loadCourses();
+        const index = courses.findIndex((c) => courseKey(c.courseId) === key);
+        if (index === -1) {
+            return res.status(404).json({ error: `Course ${req.params.courseId} not found.` });
+        }
+
+        const [deleted] = courses.splice(index, 1);
+        await saveCourses(courses);
+        res.json({ message: `Course ${deleted.courseId} deleted successfully.`, course: deleted });
     } catch (error) {
         next(error);
     }
