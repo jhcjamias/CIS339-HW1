@@ -11,7 +11,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageHeader title="Students" subtitle="Search, add, and remove students." />
+  <PageHeader title="Students" subtitle="Add, search, view, and remove students." />
   <div class="grid-2">
     <StudentSearchForm />
     <StudentAddForm />

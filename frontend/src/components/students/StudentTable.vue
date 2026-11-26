@@ -1,15 +1,16 @@
 <script setup>
 defineProps({
   students: { type: Array, required: true },
-  deletingName: { type: String, default: null },
+  selectedId: { type: String, default: null },
+  deletingId: { type: String, default: null },
 });
-const emit = defineEmits(['delete']);
+const emit = defineEmits(['select', 'delete']);
 </script>
 
 <template>
   <div class="table-wrap">
     <table class="table">
-      <caption class="sr-only">Student search results</caption>
+      <caption class="sr-only">Students</caption>
       <thead>
         <tr>
           <th scope="col">Name</th>
@@ -20,7 +21,11 @@ const emit = defineEmits(['delete']);
         </tr>
       </thead>
       <tbody>
-        <tr v-for="student in students" :key="student.id">
+        <tr
+          v-for="student in students"
+          :key="student.id"
+          :class="{ 'is-selected': student.id === selectedId }"
+        >
           <td data-label="Name">{{ student.name }}</td>
           <td data-label="Student ID">{{ student.id }}</td>
           <td data-label="Phone">{{ student.phone }}</td>
@@ -28,12 +33,20 @@ const emit = defineEmits(['delete']);
           <td class="cell-actions">
             <button
               type="button"
+              class="btn btn-secondary btn-sm"
+              :aria-label="`View details for ${student.name}`"
+              @click="emit('select', student.id)"
+            >
+              View
+            </button>
+            <button
+              type="button"
               class="btn btn-danger btn-sm"
-              :disabled="deletingName === student.name"
+              :disabled="deletingId === student.id"
               :aria-label="`Delete student ${student.name}`"
               @click="emit('delete', student)"
             >
-              {{ deletingName === student.name ? 'Deleting…' : 'Delete' }}
+              {{ deletingId === student.id ? 'Deleting…' : 'Delete' }}
             </button>
           </td>
         </tr>

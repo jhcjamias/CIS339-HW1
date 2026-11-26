@@ -1,7 +1,10 @@
-import { post } from './http';
+import { del, get, post } from './http';
+
+const BASE = '/api/students';
 
 export const studentApi = {
-  find: (name) => post('/find-student', { name }),
-  add: (student) => post('/add-student', student),
-  remove: (name) => post('/delete-student', { name }),
+  list: (query = '') => get(query ? `${BASE}?q=${encodeURIComponent(query)}` : BASE),
+  get: (id) => get(`${BASE}/${encodeURIComponent(id)}`),
+  create: (student) => post(BASE, student),
+  remove: (id) => del(`${BASE}/${encodeURIComponent(id)}`),
 };

@@ -6,44 +6,44 @@ import FormField from '@/components/FormField.vue';
 import { useStudentStore } from '@/stores/students';
 
 const store = useStudentStore();
-const { searching } = storeToRefs(store);
+const { loading, isSearching } = storeToRefs(store);
 
-const name = ref('');
+const term = ref(store.query);
 const error = ref('');
 
 async function onSubmit() {
-  if (!name.value.trim()) {
-    error.value = 'Enter a student name to search.';
+  if (!term.value.trim()) {
+    error.value = 'Enter a name or student ID to search.';
     return;
   }
   error.value = '';
-  await store.searchStudent(name.value);
+  await store.search(term.value);
 }
 
-function onClear() {
-  name.value = '';
+async function onShowAll() {
+  term.value = '';
   error.value = '';
-  store.clearResults();
+  await store.showAll();
 }
 </script>
 
 <template>
   <BaseCard title="Search for a Student" heading-id="search-heading">
-    <form class="form" novalidate @submit.prevent="onSubmit">
+    <form class="form" role="search" novalidate @submit.prevent="onSubmit">
       <FormField
         id="search-name"
-        v-model="name"
-        label="Student name"
-        placeholder="e.g. John"
+        v-model="term"
+        label="Name or student ID"
+        placeholder="e.g. John or 1001"
+        hint="Names match partially and ignore case. IDs must match exactly."
         :error="error"
-        required
       />
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary" :disabled="searching">
-          {{ searching ? 'Searching…' : 'Search' }}
+        <button type="submit" class="btn btn-primary" :disabled="loading">
+          {{ loading && isSearching ? 'Searching…' : 'Search' }}
         </button>
-        <button type="button" class="btn btn-secondary" :disabled="searching" @click="onClear">
-          Clear
+        <button type="button" class="btn btn-secondary" :disabled="loading" @click="onShowAll">
+          Show all
         </button>
       </div>
     </form>

@@ -2,8 +2,7 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 
-// Backend endpoints that the dev server forwards to Express on port 3000.
-const API_ROUTES = ['/find-student', '/add-student', '/delete-student', '/api'];
+// The dev server forwards all /api requests to Express on port 3000.
 const BACKEND_URL = 'http://localhost:3000';
 
 export default defineConfig({
@@ -15,7 +14,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    proxy: Object.fromEntries(API_ROUTES.map((route) => [route, BACKEND_URL])),
+    proxy: { '/api': BACKEND_URL },
   },
   build: {
     outDir: 'dist',

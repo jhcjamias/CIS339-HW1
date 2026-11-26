@@ -8,9 +8,12 @@ import { useStudentStore } from '@/stores/students';
 const store = useStudentStore();
 const { adding } = storeToRefs(store);
 
+const FIELDS = ['name', 'id', 'phone', 'zip'];
 const emptyForm = () => ({ name: '', id: '', phone: '', zip: '' });
+
 const form = reactive(emptyForm());
-const touched = reactive({ name: false, id: false, phone: false, zip: false });
+const touched = reactive(Object.fromEntries(FIELDS.map((f) => [f, false])));
+const serverErrors = reactive({}); // errors returned by the API, e.g. duplicate ID
 const submitted = ref(false);
 
 const validators = {
@@ -29,17 +32,29 @@ const validators = {
   },
 };
 
-const errors = computed(() =>
-  Object.fromEntries(Object.keys(validators).map((key) => [key, validators[key](form[key])])),
+const clientErrors = computed(() =>
+  Object.fromEntries(FIELDS.map((key) => [key, validators[key](form[key])])),
 );
-const isValid = computed(() => Object.values(errors.value).every((msg) => !msg));
+const isValid = computed(() => Object.values(clientErrors.value).every((msg) => !msg));
 
-// Only show a field's error after the user has left it or tried to submit.
-const visibleError = (key) => (touched[key] || submitted.value ? errors.value[key] : '');
+// Show a client error once the field was left or the form submitted;
+// a server error shows until the user edits that field.
+function visibleError(key) {
+  const client = touched[key] || submitted.value ? clientErrors.value[key] : '';
+  return client || serverErrors[key] || '';
+}
+
+function onInput(key, value) {
+  form[key] = value;
+  delete serverErrors[key];
+}
 
 function reset() {
   Object.assign(form, emptyForm());
-  Object.keys(touched).forEach((key) => (touched[key] = false));
+  FIELDS.forEach((key) => {
+    touched[key] = false;
+    delete serverErrors[key];
+  });
   submitted.value = false;
 }
 
@@ -47,13 +62,18 @@ async function onSubmit() {
   submitted.value = true;
   if (!isValid.value) return;
 
-  const ok = await store.addStudent({
+  const result = await store.addStudent({
     name: form.name.trim(),
     id: form.id.trim(),
     phone: form.phone.trim(),
     zip: form.zip.trim(),
   });
-  if (ok) reset();
+
+  if (result.ok) {
+    reset();
+  } else {
+    Object.assign(serverErrors, result.fields);
+  }
 }
 </script>
 
@@ -62,43 +82,47 @@ async function onSubmit() {
     <form class="form form-grid" novalidate @submit.prevent="onSubmit">
       <FormField
         id="add-name"
-        v-model="form.name"
+        :model-value="form.name"
         label="Name"
         autocomplete="name"
         :error="visibleError('name')"
         required
+        @update:model-value="onInput('name', $event)"
         @blur="touched.name = true"
       />
       <FormField
         id="add-id"
-        v-model="form.id"
+        :model-value="form.id"
         label="Student ID"
         inputmode="numeric"
         placeholder="e.g. 1001"
         :error="visibleError('id')"
         required
+        @update:model-value="onInput('id', $event)"
         @blur="touched.id = true"
       />
       <FormField
         id="add-phone"
-        v-model="form.phone"
+        :model-value="form.phone"
         label="Phone"
         type="tel"
         autocomplete="tel"
         placeholder="e.g. 555-1234"
         :error="visibleError('phone')"
         required
+        @update:model-value="onInput('phone', $event)"
         @blur="touched.phone = true"
       />
       <FormField
         id="add-zip"
-        v-model="form.zip"
+        :model-value="form.zip"
         label="ZIP code"
         inputmode="numeric"
         autocomplete="postal-code"
         placeholder="e.g. 77001"
         :error="visibleError('zip')"
         required
+        @update:model-value="onInput('zip', $event)"
         @blur="touched.zip = true"
       />
       <div class="form-actions span-all">

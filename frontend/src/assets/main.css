@@ -310,6 +310,52 @@ main.container {
 }
 .cell-actions {
   text-align: right;
+  white-space: nowrap;
+}
+.cell-actions .btn + .btn {
+  margin-left: 6px;
+}
+.table tbody tr.is-selected td {
+  background: #fff5f6;
+}
+.table tbody tr.is-selected td:first-child {
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+/* Student list + details */
+.grid-results {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.grid-results.has-details {
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+}
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.details-list {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.details-list dt {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-muted);
+}
+.details-list dd {
+  margin: 2px 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.retry {
+  margin-left: 8px;
 }
 
 /* Feedback states */
@@ -438,7 +484,8 @@ main.container {
 
 /* Responsive */
 @media (max-width: 860px) {
-  .grid-2 {
+  .grid-2,
+  .grid-results.has-details {
     grid-template-columns: 1fr;
   }
 }

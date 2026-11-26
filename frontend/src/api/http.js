@@ -3,10 +3,11 @@
 // http://localhost:3000, and in production Express serves the app itself.
 
 export class ApiError extends Error {
-  constructor(message, status) {
+  constructor(message, status, fields = {}) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
+    this.fields = fields; // per-field validation messages from the server
   }
 }
 
@@ -34,10 +35,12 @@ export async function request(url, { method = 'GET', body } = {}) {
 
   if (!response.ok) {
     const message = data?.error || data?.message || `Request failed (HTTP ${response.status}).`;
-    throw new ApiError(message, response.status);
+    throw new ApiError(message, response.status, data?.fields ?? {});
   }
 
   return data;
 }
 
+export const get = (url) => request(url);
 export const post = (url, body) => request(url, { method: 'POST', body });
+export const del = (url) => request(url, { method: 'DELETE' });
